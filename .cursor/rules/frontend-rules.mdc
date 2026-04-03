@@ -1,0 +1,85 @@
+---
+description: EnerBrain 프론트(운영 대시보드) 방향 — Vue 3 패턴 vs Grafana 등 솔루션은 미정
+globs: "**/*.{vue,ts,tsx}"
+alwaysApply: false
+---
+# EnerBrain — 프론트엔드 규칙
+
+## 제품 방향 (EnerBrain)
+
+- 프론트의 주요 역할은 **운영·분석 대시보드**로 보는 것을 전제로 한다.
+- 다룰 범위(예정): **AI 분석 현황**, **자원**, **시간 축**, **이력** 등 운영자가 상태를 파악·관리하기 위한 화면.
+- 백엔드는 **FastAPI** (`/api/v1` 등). 대시보드 데이터는 REST(JSON) 또는 추후 SSE/WebSocket 등으로 확장 가능.
+
+## 기술 스택 — **아직 확정 전 (TBD)**
+
+- **옵션 A**: **Vue 3** + TypeScript + Vite 등으로 **커스텀 UI** (세밀한 업무 화면·권한·워크플로에 유리).
+- **옵션 B**: **Grafana** 등 **관측/대시보드 솔루션** 위주 (표준 패널·빠른 구축, 커스텀 UX는 제한적일 수 있음).
+- **결정 전까지**: 새 프론트 코드를 추가할 때는 사용자가 명시한 스택을 따르고, 없으면 **Vue 3** 가정으로 작성하되 주석/문서에 “스택 미확정”을 남길 수 있다.
+
+## Vue 3를 쓸 때의 기본 패턴 (참고)
+
+### 디렉터리(권장 형태)
+
+- `src/components/` — 재사용 컴포넌트
+- `src/views/` 또는 `src/pages/` — 라우트 단위 화면
+- `src/composables/` — 공통 로직
+- `src/services/` 또는 `src/api/` — 백엔드 호출 (`fetch` / axios 등)
+- `src/stores/` — **Pinia** 전역 상태
+- `src/router/` — Vue Router
+- `src/types/` — TypeScript 타입
+
+### 단일 파일 컴포넌트
+
+```vue
+<!-- ExampleCard.vue -->
+<template>
+  <div class="card">
+    <slot />
+  </div>
+</template>
+
+<script setup lang="ts">
+defineProps<{ title: string; count?: number }>();
+</script>
+
+<style scoped>
+.card {
+  /* 스코프 스타일 */
+}
+</style>
+```
+
+### API 서비스 예시
+
+```typescript
+// services/enerbrainApi.ts
+const base = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
+
+export async function getHealth() {
+  const res = await fetch(`${base}/health`);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+```
+
+## 상태·성능
+
+- 전역 상태: **Pinia**. 서버 상태는 가능하면 **composable**로 캡슐화.
+- 큰 목록은 가상 스크롤·페이지네이션 고려.
+- 차트·시계열은 선택한 스택(Vue 라이브러리 vs Grafana)에 맞춤.
+
+## 테스트·품질
+
+- Vue 커스텀 경로: **Vitest** + **Vue Test Utils** 권장.
+- E2E는 필요 시 **Playwright** 등(프로젝트 생성 후 도입).
+
+## 접근성·보안
+
+- 의미 있는 제목/레이블, 키보드 조작, 대비.
+- 인증 시 토큰 저장·갱신 정책을 백엔드와 맞출 것. XSS·CSRF는 배포 환경에 맞게 대응.
+
+## 문서
+
+- 컴포넌트가 늘면 Storybook 등은 **스택 확정 뒤** 검토.
+- API는 백엔드 OpenAPI(`/docs`)와 계약을 맞춘다.

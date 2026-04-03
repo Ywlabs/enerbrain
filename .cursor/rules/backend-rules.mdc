@@ -1,0 +1,75 @@
+---
+description: EnerBrain 백엔드(FastAPI·PostgreSQL) 코딩 규칙 — 실제 구조는 backend/app 기준
+globs: backend/**/*.py
+alwaysApply: false
+---
+# EnerBrain — 백엔드 규칙
+
+## 프로젝트 맥락
+
+- **EnerBrain**: 에너지 데이터 분석·AI 추론·상황 판단 API. 저장소의 구현 기준은 **`backend/app/`** (FastAPI).
+- 과거 Flask 폴더 구조는 **참고용 레거시**이며, 새 코드는 본 규칙과 **memory-bank**·실제 코드가 우선이다.
+
+## 디렉터리 구조 (실제)
+
+- `backend/app/main.py` — `create_app()`, lifespan, CORS, 라우터 마운트
+- `backend/app/api/v1/` — `APIRouter`만 (HTTP 계층)
+- `backend/app/services/` — 비즈니스·도메인 로직
+- `backend/app/models/` — SQLAlchemy 모델 (`from app.core.database import Base`)
+- `backend/app/schemas/` — Pydantic 요청/응답
+- `backend/app/core/config.py` — `pydantic-settings`
+- `backend/app/core/database.py` — 엔진·`SessionLocal` (`DATABASE_URL` 있을 때만)
+- `backend/app/common/` — 공통 응답 등 (`ApiResponse`)
+- `backend/app/dependencies.py` — `DbSession` 등 `Annotated[..., Depends(...)]`
+
+## 코드 스타일
+
+- **Python 3.11+**, 타입 힌트 사용.
+- **린트**: `pyproject.toml`의 **ruff** 설정 준수(`line-length = 100`).
+- 라우트는 **얇게**, 검증·응답 조립은 서비스/스키마에 둔다.
+
+## 라우트 예시 (FastAPI)
+
+```python
+# app/api/v1/example.py
+from fastapi import APIRouter
+
+from app.common.response import ApiResponse
+from app.schemas.example import ExampleIn
+
+router = APIRouter(tags=["예시"])
+
+
+@router.post("/example", response_model=ApiResponse)
+def example(body: ExampleIn) -> ApiResponse:
+    # 서비스 호출은 app.services.* 에 위임
+    return ApiResponse(success=True, message="처리 완료", data=None)
+```
+
+## 데이터베이스
+
+- ORM: **SQLAlchemy 2.x**. PostgreSQL 드라이버: **psycopg3** (`postgresql+psycopg://...`).
+- 세션: 라우트에서 **`DbSession`** 주입 (`dependencies.py`). URL 미설정 시 DB 필수 엔드포인트는 **503**.
+- 마이그레이션: **Alembic** 도입 예정(도입 후 버전 관리 원칙 준수).
+
+## 에러·로깅
+
+- HTTP 에러는 **`HTTPException`** 또는 공통 예외 핸들러로 일관되게.
+- 로그는 구조화·레벨 구분; 비밀·토큰 마스킹.
+
+## 보안·품질
+
+- 입력값은 **Pydantic**으로 검증. Raw SQL 사용 시 **바인딩**으로 인젝션 방지.
+- 인증·인가(JWT 등)는 도입 시 `dependencies`·미들웨어로 통일.
+- 테스트: **pytest** + httpx `TestClient`(또는 async 클라이언트) 권장.
+
+## API 계약
+
+- v1 베이스 경로: 설정 `API_V1_PREFIX`(기본 `/api/v1`).
+- 성공 응답 래퍼: **`ApiResponse`** (`success`, `message`, `data`) 유지.
+- OpenAPI는 `/docs` — 스키마·예시를 채워 둔다.
+
+## 배포·의존성
+
+- 의존성 단일 출처: **`backend/pyproject.toml`**. Docker에서도 `pip install .` 등으로 동일하게 설치 가능.
+- 실행: `backend` 디렉터리 + **`backend/.venv`** 의 Python 사용.

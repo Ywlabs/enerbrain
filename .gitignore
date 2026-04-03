@@ -1,0 +1,46 @@
+# --- Python / 백엔드 ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+.env
+.env.*
+!.env.example
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# --- OS ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- IDE / 도구 ---
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- 로그·업로드(운영 시) ---
+*.log
+logs/
+
+# --- 프론트 (추가 시) ---
+node_modules/
+.output/
+.nuxt/
+dist-ssr/
+
+# --- 기타 ---
+*.local
