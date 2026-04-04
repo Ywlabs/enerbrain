@@ -37,6 +37,12 @@
 - DB 미구성 시 `DbSession` 사용 라우트는 503.
 - 대용량 모델 파일은 저장소에 커밋하지 않음(경로는 환경 변수).
 
+## Git·원격
+
+- 기본 브랜치: **`main`**.
+- 원격: **`https://github.com/Ywlabs/enerbrain.git`** (`origin`).
+
 ## Cursor 규칙 파일
 
-- **`.cursor/rules/backend-rules.mdc`** — 과거 Flask 중심 설명 포함 → **참고만**, 실제 스택은 FastAPI 기준 `memory-bank`·코드가 우선.
+- **`.cursor/rules/backend-rules.mdc`** — **FastAPI·`backend/app` 실구조** 기준으로 정리됨(Flask 레거시 아님).
+- **`.cursor/rules/frontend-rules.mdc`**, **`memory-bank.mdc`** — EnerBrain 맥락 명시.

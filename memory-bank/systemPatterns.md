@@ -2,9 +2,10 @@
 
 ## 저장소 레이아웃(요약)
 
-- **`backend/`** — FastAPI 애플리케이션 루트(`pyproject.toml`, `app/`).
+- **루트** — `README.md`, `.gitignore`, Git 원격 `origin` → GitHub `Ywlabs/enerbrain`.
+- **`backend/`** — FastAPI 애플리케이션(`pyproject.toml`, `app/`, `README.md`).
 - **프론트** — 저장소 내 경로는 스택 확정 후 정함(대시보드 목적만 합의).
-- **`work/workplan/`** — 기획·설계·베이스라인(코드 아님).
+- **`work/workplan/baseline/`** — `baseline.md`, `baseline_rag_notes.md`, `author_development_style.md`(구 일자별 workplan 폴더는 제거됨).
 - **`memory-bank/`** — 세션 간 컨텍스트(본 문서들).
 - **`.cursor/rules/`** — EnerBrain용 백엔드·프론트·Memory Bank 규칙.
 
