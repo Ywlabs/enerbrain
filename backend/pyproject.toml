@@ -10,6 +10,7 @@ include = ["app*"]
 name = "enerbrain-backend"
 version = "0.1.0"
 description = "EnerBrain FastAPI 백엔드"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",
