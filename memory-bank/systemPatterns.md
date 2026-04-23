@@ -3,6 +3,7 @@
 ## 저장소/설계 산출물
 
 - 핵심 DDL: `work/workplan/baseline/enerbrain_database_v1.sql`
+- MariaDB 개발 DDL: `work/workplan/baseline/ener_brain_database_mariadb_v1.sql`
 - 메모리 컨텍스트: `memory-bank/*.md`
 - 구현 코드: `backend/` (FastAPI)
 
@@ -42,6 +43,9 @@
 - 프로젝트 키 우선: `TB_BIZ_API_KEY` (API별 분할 대신 프로젝트 단위)
 - Open API는 별도 체계: `TB_OPEN_API_KEY` + `TB_OPEN_API_KEY_SVC`
 - 요청 추적: `TB_API_REQ_LOG`
+- API 경계:
+  - `SAS`: 고객사 호출 API, 프로젝트 키 필수(`X-BIZ-NO`, `X-API-KEY`)
+  - `PAS`: 내부 운영 API, 관리자 세션(JWT) 적용 예정
 
 ## 기술적 결정
 
@@ -51,3 +55,6 @@
   - `ON CONFLICT`
   - `COMMENT ON`
   - 트리거 함수(`TB_COMM_CD.MOD_DT` 자동 갱신)
+- 백엔드 구조:
+  - `api/v1/sas/*`, `api/v1/pas/*` 분리
+  - `domain/*`, `infra/*`, `workers/*` 스캐폴드 기반으로 기능 확장

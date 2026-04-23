@@ -38,6 +38,9 @@ enerbrain-serve
 | `services/` | 비즈니스 로직 |
 | `models/` | SQLAlchemy ORM |
 | `schemas/` | Pydantic 스키마 |
+| `domain/` | 도메인별 패키지(서비스/리포지토리/모델/스키마) |
+| `infra/` | DB 트랜잭션/리포지토리 베이스/외부 어댑터 |
+| `workers/` | 수집/정규화/학습 워커 진입점 |
 | `core/` | 설정(`config`), DB(`database`) |
 | `common/` | 공통 응답(`ApiResponse`) |
 | `dependencies.py` | `DbSession` 등 Depends |
@@ -46,6 +49,10 @@ enerbrain-serve
 
 - Base path: 환경 변수 `API_V1_PREFIX` (기본 `/api/v1`)
 - 예: `GET /api/v1/health`
+- `GET /api/v1/sas/*`: 고객사 호출 오픈 API (예측/조회)
+  - 필수 헤더: `X-BIZ-NO`, `X-API-KEY` (프로젝트 발급 키)
+  - 누락/검증 실패 시 라우트 진입 전 `403 권한없음`
+- `GET /api/v1/pas/*`: 내부 운영/관리 API (관리자 CRUD)
 - OpenAPI: 서버 기동 후 `/docs`
 
 ## 린트

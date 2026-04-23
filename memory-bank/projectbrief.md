@@ -19,10 +19,12 @@
 - 예측/모델: `TB_MODEL_*`, `TB_DEPLOY`, `TB_FCST_RSLT`
 - API 인증/운영: `TB_API_SVC`, `TB_BIZ_API_KEY`, `TB_OPEN_API_*`, `TB_API_REQ_LOG`
 - 공통코드: `TB_COMM_CD` (`TYPE_CD`/`GRP_CD` 정책 반영)
+- API 구분: `SAS`(고객사 오픈), `PAS`(내부 운영)
 
 ## 현재 기준 문서/산출물
 
 - 설계 원본: `work/workplan/baseline/enerbrain_database_v1.sql`
+- MariaDB 개발본: `work/workplan/baseline/ener_brain_database_mariadb_v1.sql`
 - 제품/기획 기준: `work/workplan/study/baseline.md`
 - 메모리 문서: `memory-bank/*.md`
 

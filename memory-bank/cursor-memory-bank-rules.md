@@ -47,6 +47,9 @@
 - 프로젝트 키: `TB_BIZ_API_KEY` (프로젝트 단위, API 단위 분할 아님)
 - Open API 키: `TB_OPEN_API_KEY` + `TB_OPEN_API_KEY_SVC`
 - 평문 키 DB 저장 금지, 해시(`KEY_HASH_CN`)만 저장
+- API 채널 구분:
+  - `SAS`: 고객사 호출 API (프로젝트 키 필수)
+  - `PAS`: 내부 운영 API (관리자 JWT 예정)
 
 ## 4) 문서 작성 규칙
 
