@@ -1,48 +1,46 @@
 # EnerBrain — 기술 컨텍스트
 
-## 런타임
+## 핵심 스택
 
-- **Python**: 3.11+ 권장(`pyproject.toml` `requires-python`).
-- **패키지 정의**: `backend/pyproject.toml`의 `[project] dependencies`가 단일 출처.
+- 백엔드: Python 3.11+, FastAPI, Uvicorn
+- DB: PostgreSQL (운영 메타/시계열/예측 결과 저장)
+- ORM/설정: SQLAlchemy 2.x, pydantic-settings
 
-## 주요 의존성
+## 현재 DB 설계 상태
 
-- **FastAPI** — 웹 API.
-- **Uvicorn[standard]** — ASGI 서버(개발 시 `--reload` = 핫 리로드).
-- **pydantic-settings** — `.env` 로딩.
-- **SQLAlchemy 2.x** — ORM.
-- **psycopg[binary]** — PostgreSQL 드라이버(연결 문자열 예: `postgresql+psycopg://...`).
+- 기준 파일: `work/workplan/baseline/enerbrain_database_v1.sql`
+- PostgreSQL 문법 사용:
+  - `JSONB`
+  - `ON CONFLICT`
+  - `COMMENT ON TABLE/COLUMN`
+  - `plpgsql` 트리거 함수 (`TB_COMM_CD.MOD_DT` 자동 갱신)
 
-개발 옵션: `[project.optional-dependencies] dev` — httpx, ruff.
+## 수집 기술 제약/지원
 
-## 로컬 개발
+- 수집 소스 타입: `DB`, `API`, `SFTP`, `FILE`, `MQTT` (코드값 기준)
+- 연결 정보는 `TB_DATA_SRC.CONN_CN(JSONB)`로 저장
+- 지원 범위는 수집 서버 구현에 의존:
+  - PostgreSQL / MySQL / MariaDB 드라이버 분기 필요
+  - 타임존/증분키/SQL 방언 차이 처리 필요
 
-1. 디렉터리: **`d:\Devlop\enerbrain\backend`**
-2. 가상환경: **`backend\.venv`만 사용**(저장소 루트 `.venv`는 사용하지 않음).
-3. 설치: `pip install -e ".[dev]"`
-4. 실행 예:
-   - `.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
-   - 또는 venv 활성화 후 `enerbrain-serve`
+## 운영 경계 (중요)
 
-전역 Python(예: Python 3.14 단독)에는 uvicorn이 없을 수 있음 → **반드시 `backend\.venv`의 python** 사용.
+- 수집서버 책임:
+  - 원천 연결(DB/파일/SFTP/API)
+  - 프로토콜 상세(Modbus 주소/채널/스케일링)
+- EnerBrain 책임:
+  - 원천 수용(`TB_TS_RAW_JSON`)
+  - 정규화(`TB_TS_FACT`)
+  - 품질/학습/예측/API 서빙
 
-## 설정
+## 인증/보안
 
-- **`backend/.env`** (git 제외) — 실제 비밀·URL.
-- **`backend/.env.example`** — 키 목록 샘플.
-- **`app/core/config.py`** — `Settings` 필드와 검증.
+- 프로젝트 키: `TB_BIZ_API_KEY` (프로젝트 단위)
+- Open API 키: `TB_OPEN_API_KEY` + 서비스권한 `TB_OPEN_API_KEY_SVC`
+- 키 저장은 해시 기반(`KEY_HASH_CN`), 평문 저장 금지 원칙
 
-## 제약·주의
+## 로컬 개발 메모
 
-- DB 미구성 시 `DbSession` 사용 라우트는 503.
-- 대용량 모델 파일은 저장소에 커밋하지 않음(경로는 환경 변수).
-
-## Git·원격
-
-- 기본 브랜치: **`main`**.
-- 원격: **`https://github.com/Ywlabs/enerbrain.git`** (`origin`).
-
-## Cursor 규칙 파일
-
-- **`.cursor/rules/backend-rules.mdc`** — **FastAPI·`backend/app` 실구조** 기준으로 정리됨(Flask 레거시 아님).
-- **`.cursor/rules/frontend-rules.mdc`**, **`memory-bank.mdc`** — EnerBrain 맥락 명시.
+- 실행 기준: `backend/.venv` 환경 사용
+- DB 스키마 검증 시 PostgreSQL에서 DDL 직접 실행 후 확인
+- 스키마 변경 시 `memory-bank` 문서 동기화 유지

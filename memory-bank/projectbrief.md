@@ -2,37 +2,32 @@
 
 ## 프로젝트명
 
-**EnerBrain** — 에너지 데이터의 종합적 사고·분석을 담당하는 **두뇌** 역할. DB 로우 데이터 분석 및 종합 판단.
+**EnerBrain** — 고객사별 에너지 데이터를 수집·정규화·예측·서빙하는 멀티테넌트 분석 플랫폼.
 
 ## 핵심 목표
 
-- 데이터 기반 **AI 예측**, **AI 통계**, **상황 판단**을 **실시간 또는 배치**로 수행하는 기능을 단계적으로 구축한다.
-- 기술 기준: **Python**, **FastAPI**, **PostgreSQL** 연동을 기본으로 한다.
-- 폴더 구조는 **MVC에 가까운 관례**(라우트 / 서비스 / 모델 / 공통)를 따르되, 과거 Flask 예시는 **참고만** 하고 **신규로** 정리한다.
+- 고객사(`SITE`) / 프로젝트(`BIZ`) 단위로 에너지 데이터를 운영하고, 예측 API를 제공한다.
+- 데이터 수집 소스(DB/API/SFTP/파일)를 유연하게 수용하되 내부 분석 레이어는 표준화한다.
+- 시계열 데이터 기반 D+1 예측(발전량/소비량)과 모델 운영(학습/평가/배포)을 체계화한다.
+- 프로젝트 단위 API 키를 발급·관리하여 고객사 개발 연동을 단순화한다.
 
-## 범위(로드맵 참고용, 즉시 전부 구현 아님)
+## 현재 확정 범위 (v1 DDL 기준)
 
-향후 확장 시 참고하는 모듈 구분(WorkPlan baseline):
+- 멀티테넌트 기본 모델: `SITE > BIZ > JOB`
+- 수집/매핑/품질: `TB_DATA_SRC`, `TB_CLCT_*`, `TB_MAPP_*`, `TB_QLTY_*`
+- 시계열 실데이터: `TB_RTU`, `TB_METER`, `TB_TS_RAW_JSON`, `TB_TS_FACT`
+- 예측/모델: `TB_MODEL_*`, `TB_DEPLOY`, `TB_FCST_RSLT`
+- API 인증/운영: `TB_API_SVC`, `TB_BIZ_API_KEY`, `TB_OPEN_API_*`, `TB_API_REQ_LOG`
+- 공통코드: `TB_COMM_CD` (`TYPE_CD`/`GRP_CD` 정책 반영)
 
-| 구분 | 역할 | 기술(참고) |
-|------|------|------------|
-| Inference API | 분석 결과 JSON 서빙 | FastAPI |
-| Data Analyzer | 전처리·피처 엔지니어링 | Pandas, SQLAlchemy |
-| Forecaster | 에너지 수요·공급 예측 | Prophet, LSTM 등 |
-| Fault Detector | 이상·고장 징후 | Isolation Forest, Autoencoder 등 |
-| 실시간 메시징 | 장비 데이터 수신·제어 명령 | MQTT(fastapi-mqtt / Paho) |
+## 현재 기준 문서/산출물
 
-MSA로 쪼개기 쉬운 **이름·경계**를 유지할 것(예: 예측 vs 고장 진단 vs 스트림).
-
-## 모델·LLM·강화학습 아티팩트
-
-- **코드**(로더, 추론, 프롬프트): `backend/app/services/` 하위 도메인 또는 공용 `llm/` 패키지.
-- **가중치·GGUF·체크포인트**: Git에 넣지 않음. 환경 변수 경로 또는 객체 저장소·공유 스토리지.
-- **학습 스크립트**: `app` 밖 `training/` 또는 `scripts/` (배포 이미지와 분리).
+- 설계 원본: `work/workplan/baseline/enerbrain_database_v1.sql`
+- 제품/기획 기준: `work/workplan/study/baseline.md`
+- 메모리 문서: `memory-bank/*.md`
 
 ## 진실의 원천
 
-- 제품 방향·기능 우선순위: `work/workplan/baseline/baseline.md`, `baseline_rag_notes.md`(RAG·LLM 확장 참고).
-- 협업·지시 스타일: `baseline/author_development_style.md`.
-- 구현 상태·다음 작업: 본 Memory Bank의 `progress.md`, `activeContext.md`.
+- DB 설계/샘플 데이터: `work/workplan/baseline/enerbrain_database_v1.sql`
+- 구현 상태·할 일: `memory-bank/progress.md`, `memory-bank/activeContext.md`
 - 공개 저장소: **https://github.com/Ywlabs/enerbrain**

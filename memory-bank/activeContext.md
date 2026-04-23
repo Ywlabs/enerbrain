@@ -1,34 +1,40 @@
 # EnerBrain — 활성 컨텍스트
 
-## 세션 종료 시점 (2026-04-04)
+## 세션 기준 (2026-04-23)
 
-오늘 작업은 여기까지로 마무리. 다음 세션 시작 시 **`progress.md`** 와 본 파일을 먼저 읽을 것.
+이번 세션에서 DB 설계/샘플 데이터/코드정책을 집중 확정했다.
 
 ## 현재 초점
 
-- **백엔드 스켈레톤** 유지: FastAPI + v1 헬스 + Settings + 선택적 PostgreSQL + `ApiResponse`.
-- **저장소·문서·원격**: Git `main` + GitHub [Ywlabs/enerbrain](https://github.com/Ywlabs/enerbrain), 루트·`backend/` README, 루트 `.gitignore`.
-- **규칙·기획 정리**: `.cursor/rules` EnerBrain 기준 정비, `work/workplan/baseline/`에 베이스라인·작성자 스타일·RAG 참고 노트만 유지(구 workplan 일자 폴더는 삭제됨).
+- `work/workplan/baseline/enerbrain_database_v1.sql`을 v1 기준 설계 산출물로 확정
+- 프로젝트 단위 API 키 운영 정책 확정 (`TB_BIZ_API_KEY`)
+- 수집·정규화·예측 데이터 흐름을 실제 테이블로 확장 (`TB_TS_RAW_JSON`, `TB_TS_FACT`, `TB_FCST_RSLT`)
+- `TB_COMM_CD` 운영 규칙 정교화 (`COMM_CD` vs `TB_테이블명` 구분)
 
-## 오늘 반영된 결정·변경 (요약)
+## 이번 세션 핵심 결정
 
-- 원격: `origin` → `https://github.com/Ywlabs/enerbrain.git`, 초기 커밋 및 README 반영분까지 push 완료.
-- `work/workplan/202507`, `202606` 삭제 — 맥락은 `baseline/author_development_style.md`에 요약.
-- `work/study` 삭제 — RAG 연구 요지는 `baseline/baseline_rag_notes.md`에만 유지.
-- `baseline.md`에 RAG 참고 한 줄 + `backend-rules.mdc`는 Flask 레거시가 아닌 **FastAPI 실구조** 기준으로 재작성됨.
+1. 멀티테넌트 구조: `SITE > BIZ > JOB`
+2. 장비 계층: `RTU > METER`
+3. 소스 수집 정책:
+   - DB 직접 수집 가능
+   - 불가 시 SFTP/CSV 대안 허용
+4. 매핑 정책:
+   - 원천 -> 표준 지표 코드 매핑을 설정으로 관리
+5. 인증 정책:
+   - 프로젝트 키는 API 단위 분할 없이 프로젝트 단위 관리
+6. PostgreSQL 코멘트/트리거 반영:
+   - `COMMENT ON ...`
+   - `TB_COMM_CD.MOD_DT` 자동 갱신 트리거
 
-## 다음에 하기 좋은 작업
+## 다음 작업 후보
 
-1. PostgreSQL `DATABASE_URL` 설정 후 **Alembic** 도입·첫 마이그레이션.
-2. **Inference API** 스텁 + `services/inference` 연결.
-3. **MQTT / 배치** 진입점·설정 훅(단계적 구현).
+1. 수집 서버 구현(멀티 DB + SFTP 커넥터)
+2. 매핑 설정 UI/검증 로직 구현
+3. API 키 검증 미들웨어 구현(Bearer/X-API-Key)
+4. `TB_TS_FACT` 파티셔닝 전략 확정(월 단위 등)
 
 ## 열린 고려사항
 
-- 동기 SQLAlchemy vs 추후 **async** 엔진.
-- 프론트: Vue 3 vs Grafana 등 **미정** (`.cursor/rules/frontend-rules.mdc`).
-- CORS·프론트 저장소 위치.
-
-## 업데이트 시점
-
-기능·아키텍처·원격 저장소 변경 시 **`progress.md`** 와 함께 갱신.
+- 키 로테이션 무중단 정책(유예기간 컬럼 추가 여부)
+- 대용량 고객 분리 전략(공유 테이블 vs 전용 분리 기준)
+- 재학습 주기(일/주/드리프트 기반) 정책 확정

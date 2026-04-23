@@ -1,40 +1,42 @@
 # EnerBrain — 진행 상황
 
-## 동작하는 것
+## 완료된 것
 
-- `backend` FastAPI 앱 기동(Uvicorn / `enerbrain-serve`).
-- `GET /api/v1/health` — `ApiResponse` 형식 JSON.
-- Swagger UI: `/docs`.
-- `pydantic-settings`, CORS, v1 라우터 집계.
-- `pyproject.toml` + `readme = "README.md"` + `[project.scripts] enerbrain-serve`.
-- `DATABASE_URL` 설정 시 SQLAlchemy 엔진·`SessionLocal`(미설정 시 DB 의존 라우트는 503).
+- `work/workplan/baseline/enerbrain_database_v1.sql` 생성/확장 완료
+- v1 DB 스키마 반영 완료:
+  - 조직/프로젝트/작업
+  - 수집/매핑/품질
+  - RTU/계측기/시계열 원천/정형
+  - 모델/배포/예측결과
+  - 프로젝트 키/Open API 키/요청로그/감사로그
+- 광명스마트시티 샘플 데이터(INSERT) 전 테이블 수준으로 추가 완료
+- `TB_COMM_CD` 정책 반영 완료:
+  - 공통 컬럼코드 -> `TYPE_CD='COMM_CD'`
+  - 테이블 전용 컬럼코드 -> `TYPE_CD='TB_테이블명'`
+- PostgreSQL 메타 개선 완료:
+  - `COMMENT ON TABLE/COLUMN` 추가
+  - `TB_COMM_CD.MOD_DT` 자동 갱신 트리거 추가
 
-## 저장소·협업
+## 현재 동작 기준(설계 레벨)
 
-- **Git**: 브랜치 `main`, 루트 `.gitignore`(`.venv`, `.env`, `__pycache__`, `*.egg-info` 등).
-- **GitHub**: [github.com/Ywlabs/enerbrain](https://github.com/Ywlabs/enerbrain) — `origin` 연동, 초기 커밋·README 포함 상태 push됨.
-- **문서**: 저장소 루트 `README.md`, `backend/README.md`.
+- 프로젝트 키는 API 단위 분할 없이 프로젝트 단위(`TB_BIZ_API_KEY`)로 운영
+- Open API는 별도 키/권한 매핑(`TB_OPEN_API_KEY`, `TB_OPEN_API_KEY_SVC`)으로 운영
+- 수집 방식은 DB/API/SFTP/파일 모두 수용 가능(`TB_DATA_SRC.CONN_CN`)
+- 원천 비정형 수용 + 정형 시계열 분석 분리(`TB_TS_RAW_JSON` -> `TB_TS_FACT`)
 
-## 기획·규칙 문서 (로컬)
+## 아직 구현 필요 (애플리케이션 레벨)
 
-- `work/workplan/baseline/baseline.md` — 제품 베이스라인.
-- `baseline/baseline_rag_notes.md` — RAG·LLM 확장 참고(구 `work/study` 내용 흡수).
-- `baseline/author_development_style.md` — WorkPlan 기반 작성자·지시 스타일 (AI 참고).
-- `.cursor/rules/` — `backend-rules.mdc`(FastAPI), `frontend-rules.mdc`, `memory-bank.mdc`.
-- **삭제됨**: `work/workplan/202507`, `202606`, `work/study`(내용은 위 baseline 등에 이전).
+- 수집서버 커넥터 구현 (PostgreSQL/MySQL/MariaDB/SFTP)
+- 매핑 규칙 실행 엔진 및 품질검증 실행기
+- API 키 검증 미들웨어(해시 비교, 만료/상태 체크, rate limit)
+- 예측 API 엔드포인트 및 모델 파이프라인 연동
 
-## 아직 없음 / 미구현
+## 알려진 주의사항
 
-- Alembic, ORM 모델·CRUD.
-- Inference / Analyzer / Forecaster / Fault Detector 비즈니스 로직.
-- MQTT, 배치 워커, 인증·권한.
-- Docker, CI.
-- 프론트엔드(스택·경로 미정).
+- `TB_TS_FACT.METER_NO`는 `NOT NULL`로 강제됨(중복 방지 목적)
+- `TB_COMM_CD.TYPE_CD`는 `VARCHAR(40)`로 확장됨
+- 평문 API 키는 DB 저장 금지(해시만 저장)
 
-## 알려진 이슈
+## 최신 반영 시점
 
-- 없음(초기 단계).
-
-## 버전 메모
-
-- Memory Bank: **2026-04-04** 세션 종료 시점 기준으로 원격 저장소·문서·workplan 정리 반영.
+- Memory Bank 동기화: **2026-04-23**
