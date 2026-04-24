@@ -5,7 +5,7 @@ FastAPI 기반 API 서버입니다. 저장소 루트 개요는 [상위 README](.
 ## 요구 사항
 
 - Python **3.11 이상**
-- (선택) PostgreSQL — `DATABASE_URL` 설정 시 SQLAlchemy 세션 사용
+- MariaDB (기준 DDL: `work/workplan/baseline/ener_brain_database_mariadb_v1.sql`)
 
 ## 설치
 
@@ -35,15 +35,12 @@ enerbrain-serve
 |------|------|
 | `main.py` | 앱 팩토리, lifespan, CORS, 라우터 마운트 |
 | `api/v1/` | HTTP 라우터 |
-| `services/` | 비즈니스 로직 |
-| `models/` | SQLAlchemy ORM |
-| `schemas/` | Pydantic 스키마 |
-| `domain/` | 도메인별 패키지(서비스/리포지토리/모델/스키마) |
-| `infra/` | DB 트랜잭션/리포지토리 베이스/외부 어댑터 |
-| `workers/` | 수집/정규화/학습 워커 진입점 |
+| `domain/` | 핵심 도메인(`user/site/biz/analysis/service_api/audit`) |
+| `runner/` | 분석 모듈 실행기/스케줄러/결과기록 |
+| `infra/` | DB 트랜잭션/리포지토리 베이스 |
 | `core/` | 설정(`config`), DB(`database`) |
 | `common/` | 공통 응답(`ApiResponse`) |
-| `dependencies.py` | `DbSession` 등 Depends |
+| `dependencies/` | `db`, `sas_auth`, `pas_auth` 의존성 |
 
 ## API
 

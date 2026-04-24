@@ -24,28 +24,27 @@
 
 ### 3-1. DB 설계 원칙
 
-- 기준 파일: `work/workplan/baseline/enerbrain_database_v1.sql`
+- 기준 파일: `work/workplan/baseline/ener_brain_database_mariadb_v1.sql`
 - 물리 FK는 사용하지 않고 의미적 FK 컬럼 + 인덱스로 관리
-- PostgreSQL 문법 사용: `JSONB`, `ON CONFLICT`, `COMMENT ON`, 트리거
+- MVP 우선: `SITE > BIZ > ANALYSIS_ITEM > ANALYSIS_RUN`
+- 과도한 확장 테이블은 당장 도입하지 않고 필요 시 단계적으로 추가
 
 ### 3-2. 코드 테이블 규칙 (`TB_COMM_CD`)
 
 - `TYPE_CD`, `GRP_CD`는 기본적으로 **물리 테이블명/컬럼명**을 사용
 - 단, 여러 테이블에서 공통으로 쓰는 컬럼만 `TYPE_CD='COMM_CD'` 사용
 - 현재 공통(`COMM_CD`)로 관리하는 대표 그룹:
-  - `STTS_CD`, `KEY_STTS_CD`, `QLTY_STTS_CD`, `METRIC_CD`
+  - `STTS_CD`, `RUN_STTS_CD`, `GLOBAL_ROLE_CD`, `SITE_ROLE_CD`, `KEY_STTS_CD`
 
-### 3-3. 수집/정규화 패턴
+### 3-3. 분석 실행 패턴
 
-- 원천 수용: `TB_TS_RAW_JSON`
-- 정규화 저장: `TB_TS_FACT`
-- 장비 계층: `TB_RTU > TB_METER`
-- 수집 워터마크: `TB_CLCT_JOB.LAST_WTMK_VAL`, `LAST_SUCC_CLCT_DT`
+- 분석 항목 정의: `TB_ANALYSIS_ITEM`
+- 실행 이력 저장: `TB_ANALYSIS_RUN`
+- 모듈 실행 기준: `MODULE_PATH_CN`, `ENTRY_FUNC_NM`, `PARAMS_JSON`
 
 ### 3-4. API 키 정책
 
 - 프로젝트 키: `TB_BIZ_API_KEY` (프로젝트 단위, API 단위 분할 아님)
-- Open API 키: `TB_OPEN_API_KEY` + `TB_OPEN_API_KEY_SVC`
 - 평문 키 DB 저장 금지, 해시(`KEY_HASH_CN`)만 저장
 - API 채널 구분:
   - `SAS`: 고객사 호출 API (프로젝트 키 필수)
