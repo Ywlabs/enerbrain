@@ -14,6 +14,7 @@ USE enerbrain;
 -- =====================================================================
 
 DROP TABLE IF EXISTS TB_AUDIT_LOG;
+DROP TABLE IF EXISTS TB_LOGIN_AUDIT_LOG;
 DROP TABLE IF EXISTS TB_API_REQ_LOG;
 DROP TABLE IF EXISTS TB_API_SVC;
 DROP TABLE IF EXISTS TB_BIZ_API_KEY;
@@ -225,7 +226,7 @@ CREATE INDEX IX_TB_API_SVC_01 ON TB_API_SVC (BIZ_NO, STTS_CD);
 CREATE INDEX IX_TB_API_SVC_02 ON TB_API_SVC (API_PATH_CN, REQ_MTHD_CD);
 
 CREATE TABLE IF NOT EXISTS TB_API_REQ_LOG (
-    API_REQ_LOG_NO      VARCHAR(20) NOT NULL COMMENT 'API요청로그번호',
+    API_REQ_LOG_NO      BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'API요청로그순번',
     API_SVC_NO          VARCHAR(20) NOT NULL COMMENT 'API서비스번호',
     BIZ_NO              VARCHAR(20) NULL COMMENT '프로젝트번호',
     USER_NO             VARCHAR(20) NULL COMMENT '사용자번호(PAS 호출 시)',
@@ -245,11 +246,35 @@ CREATE INDEX IX_TB_API_REQ_LOG_02 ON TB_API_REQ_LOG (BIZ_NO, REQ_DT);
 CREATE INDEX IX_TB_API_REQ_LOG_03 ON TB_API_REQ_LOG (BIZ_API_KEY_NO, REQ_DT);
 
 -- =====================================================================
--- 05. 감사 로그
+-- 05. 로그인 감사 로그
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS TB_LOGIN_AUDIT_LOG (
+    LOGIN_AUDIT_LOG_NO  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '로그인감사로그순번',
+    AUTH_SE_CD          VARCHAR(20) NOT NULL COMMENT '인증구분코드(PAS/SAS)',
+    LOGIN_ACT_SE_CD     VARCHAR(20) NOT NULL COMMENT '로그인행위코드(SUCCESS/FAIL/LOCKED)',
+    USER_ID             VARCHAR(100) NOT NULL COMMENT '입력로그인ID',
+    USER_NO             VARCHAR(20) NULL COMMENT '사용자번호(식별성공시)',
+    BIZ_API_KEY_NO      VARCHAR(20) NULL COMMENT '프로젝트API키번호(SAS인증시)',
+    REQ_IP_ADDR         VARCHAR(45) NULL COMMENT '요청IP주소',
+    USER_AGENT_CN       VARCHAR(1000) NULL COMMENT '사용자에이전트',
+    FAIL_RSN_CD         VARCHAR(40) NULL COMMENT '실패사유코드(USER_NOT_FOUND/PASSWORD_MISMATCH/LOCKED/INACTIVE/KEY_INVALID)',
+    FAIL_DTL_CN         VARCHAR(1000) NULL COMMENT '실패상세내용',
+    REQ_DT              DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '요청일시',
+    PRIMARY KEY (LOGIN_AUDIT_LOG_NO)
+) ENGINE=InnoDB COMMENT='로그인 인증 이벤트 감사 로그';
+
+CREATE INDEX IX_TB_LOGIN_AUDIT_LOG_01 ON TB_LOGIN_AUDIT_LOG (REQ_DT);
+CREATE INDEX IX_TB_LOGIN_AUDIT_LOG_02 ON TB_LOGIN_AUDIT_LOG (AUTH_SE_CD, LOGIN_ACT_SE_CD, REQ_DT);
+CREATE INDEX IX_TB_LOGIN_AUDIT_LOG_03 ON TB_LOGIN_AUDIT_LOG (USER_ID, REQ_DT);
+CREATE INDEX IX_TB_LOGIN_AUDIT_LOG_04 ON TB_LOGIN_AUDIT_LOG (USER_NO, REQ_DT);
+
+-- =====================================================================
+-- 06. 감사 로그
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS TB_AUDIT_LOG (
-    AUDIT_LOG_NO        VARCHAR(20) NOT NULL COMMENT '감사로그번호',
+    AUDIT_LOG_NO        BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '감사로그순번',
     USER_NO             VARCHAR(20) NULL COMMENT '행위자사용자번호',
     SITE_NO             VARCHAR(20) NULL COMMENT '사이트번호',
     BIZ_NO              VARCHAR(20) NULL COMMENT '프로젝트번호',
@@ -265,7 +290,7 @@ CREATE INDEX IX_TB_AUDIT_LOG_01 ON TB_AUDIT_LOG (REG_DT);
 CREATE INDEX IX_TB_AUDIT_LOG_02 ON TB_AUDIT_LOG (USER_NO, REG_DT);
 
 -- =====================================================================
--- 06. 초기 코드/샘플 운영계정 (선택)
+-- 07. 초기 코드/샘플 운영계정 (선택)
 -- =====================================================================
 
 INSERT IGNORE INTO TB_COMM_CD
@@ -280,6 +305,14 @@ VALUES
 ('COMM_CD', 'GLOBAL_ROLE_CD', 'OPS_ADMIN', '운영관리자', '운영 관리자 권한', 2, 'SYSTEM', 'SYSTEM'),
 ('COMM_CD', 'SITE_ROLE_CD', 'SITE_ADMIN', '사이트관리자', '사이트 단위 권한', 1, 'SYSTEM', 'SYSTEM'),
 ('COMM_CD', 'SITE_ROLE_CD', 'SITE_VIEWER', '사이트조회자', '사이트 조회 권한', 2, 'SYSTEM', 'SYSTEM'),
+('TB_LOGIN_AUDIT_LOG', 'LOGIN_ACT_SE_CD', 'SUCCESS', '로그인성공', '인증 성공', 1, 'SYSTEM', 'SYSTEM'),
+('TB_LOGIN_AUDIT_LOG', 'LOGIN_ACT_SE_CD', 'FAIL', '로그인실패', '인증 실패', 2, 'SYSTEM', 'SYSTEM'),
+('TB_LOGIN_AUDIT_LOG', 'LOGIN_ACT_SE_CD', 'LOCKED', '잠금차단', '잠금 상태로 인증 차단', 3, 'SYSTEM', 'SYSTEM'),
+('TB_LOGIN_AUDIT_LOG', 'FAIL_RSN_CD', 'USER_NOT_FOUND', '사용자없음', '사용자 ID 미존재', 1, 'SYSTEM', 'SYSTEM'),
+('TB_LOGIN_AUDIT_LOG', 'FAIL_RSN_CD', 'PASSWORD_MISMATCH', '비밀번호불일치', '비밀번호 검증 실패', 2, 'SYSTEM', 'SYSTEM'),
+('TB_LOGIN_AUDIT_LOG', 'FAIL_RSN_CD', 'LOCKED', '계정잠금', '계정 잠금 상태', 3, 'SYSTEM', 'SYSTEM'),
+('TB_LOGIN_AUDIT_LOG', 'FAIL_RSN_CD', 'INACTIVE', '비활성계정', '사용불가 또는 삭제 계정', 4, 'SYSTEM', 'SYSTEM'),
+('TB_LOGIN_AUDIT_LOG', 'FAIL_RSN_CD', 'KEY_INVALID', 'API키오류', 'API 키 오류 또는 만료', 5, 'SYSTEM', 'SYSTEM'),
 ('TB_BIZ_API_KEY', 'KEY_STTS_CD', 'ACTIVE', '활성', '사용 가능 키', 1, 'SYSTEM', 'SYSTEM'),
 ('TB_BIZ_API_KEY', 'KEY_STTS_CD', 'REVOKED', '폐기', '폐기된 키', 2, 'SYSTEM', 'SYSTEM'),
 ('TB_BIZ_API_KEY', 'KEY_STTS_CD', 'EXPIRED', '만료', '만료된 키', 3, 'SYSTEM', 'SYSTEM');
@@ -301,7 +334,7 @@ VALUES
 );
 
 -- =====================================================================
--- 07. 샘플 데이터 (SITE / BIZ / ANALYSIS_ITEM)
+-- 08. 샘플 데이터 (SITE / BIZ / ANALYSIS_ITEM)
 -- =====================================================================
 
 INSERT IGNORE INTO TB_SITE
@@ -383,7 +416,7 @@ VALUES
 );
 
 -- =====================================================================
--- 08. 샘플 데이터 (TB_USER_SITE_ROLE)
+-- 09. 샘플 데이터 (TB_USER_SITE_ROLE)
 -- =====================================================================
 
 INSERT IGNORE INTO TB_USER

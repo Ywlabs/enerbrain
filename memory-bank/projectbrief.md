@@ -16,7 +16,7 @@
 - 멀티테넌트 기본 모델: `SITE > BIZ > ANALYSIS_ITEM`
 - 분석 실행 이력: `TB_ANALYSIS_RUN`
 - 사용자/권한: `TB_USER`, `TB_USER_SITE_ROLE`
-- API 인증/운영: `TB_API_SVC`, `TB_BIZ_API_KEY`, `TB_API_REQ_LOG`
+- API 인증/운영: `TB_API_SVC`, `TB_BIZ_API_KEY`, `TB_API_REQ_LOG`, `TB_LOGIN_AUDIT_LOG`
 - 공통/감사: `TB_COMM_CD`, `TB_AUDIT_LOG`
 - API 구분: `SAS`(고객사 오픈), `PAS`(내부 운영)
 
@@ -32,3 +32,8 @@
 - DB 설계/샘플 데이터: `work/workplan/baseline/ener_brain_database_mariadb_v1.sql`
 - 구현 상태·할 일: `memory-bank/progress.md`, `memory-bank/activeContext.md`
 - 공개 저장소: **https://github.com/Ywlabs/enerbrain**
+
+## 개발 컨벤션 (핵심)
+
+- 로그/감사/요청 이력 테이블의 PK는 `BIGINT UNSIGNED AUTO_INCREMENT`를 기본으로 사용한다.
+- 로그성 PK 번호는 애플리케이션에서 직접 생성하지 않고 DB에 위임한다.

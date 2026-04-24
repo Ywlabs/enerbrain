@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # PostgreSQL 연결 문자열 (SQLAlchemy 2 + psycopg3: postgresql+psycopg://...)
     database_url: str | None = None
     cors_origins: list[str] = ["http://localhost:5173"]
+    jwt_secret_key: str = "CHANGE_ME_PLEASE"
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_exp_min: int = 30
 
     @field_validator("cors_origins", mode="before")
     @classmethod

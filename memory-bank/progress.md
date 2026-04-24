@@ -6,7 +6,7 @@
 - DB 구조 단순화 완료:
   - 유지: `TB_SITE`, `TB_BIZ`, `TB_ANALYSIS_ITEM`, `TB_ANALYSIS_RUN`
   - 인증/권한: `TB_USER`, `TB_USER_SITE_ROLE`, `TB_BIZ_API_KEY`
-  - API/로그: `TB_API_SVC`, `TB_API_REQ_LOG`, `TB_AUDIT_LOG`
+  - API/로그: `TB_API_SVC`, `TB_API_REQ_LOG`, `TB_LOGIN_AUDIT_LOG`, `TB_AUDIT_LOG`
   - 공통코드: `TB_COMM_CD`
 - 제거 완료:
   - `TB_USER_ROLE`, `TB_USER_AUTH` 별도 테이블, `TB_BIZ_MBR`
@@ -19,19 +19,28 @@
 - 샘플 데이터 반영 완료:
   - `TB_SITE`, `TB_BIZ`, `TB_ANALYSIS_ITEM`, `TB_USER_SITE_ROLE`
   - `SUPER_ADMIN`, 사이트 운영자 샘플 계정 포함
+- PAS 로그인/JWT 1차 구현 완료:
+  - `POST /api/v1/pas/auth/login`
+  - `GET /api/v1/pas/auth/me`
+- PAS 로그인 감사로그 적재 구현 완료:
+  - 성공/실패/잠금 이벤트를 `TB_LOGIN_AUDIT_LOG`에 저장
+- 로그성 PK 정책 반영 완료:
+  - `TB_API_REQ_LOG.API_REQ_LOG_NO` = `AUTO_INCREMENT`
+  - `TB_LOGIN_AUDIT_LOG.LOGIN_AUDIT_LOG_NO` = `AUTO_INCREMENT`
+  - `TB_AUDIT_LOG.AUDIT_LOG_NO` = `AUTO_INCREMENT`
 
-## 현재 동작 기준(설계 레벨)
+## 현재 동작 기준(구현 레벨)
 
 - SAS 인증: 프로젝트 키(`TB_BIZ_API_KEY`) 기반
-- PAS 인증: 내부 JWT 예정, 사용자/권한 원천은 `TB_USER` + `TB_USER_SITE_ROLE`
+- PAS 인증: JWT 기반 동작, 사용자/권한 원천은 `TB_USER` + `TB_USER_SITE_ROLE`
 - 전체관리자: `TB_USER.GLOBAL_ROLE_CD='SUPER_ADMIN'`로 전체 사이트 접근
 - 사이트관리자: `TB_USER_SITE_ROLE` 매핑 사이트 범위만 접근
 
 ## 아직 구현 필요 (애플리케이션 레벨)
 
-- PAS 로그인/JWT 발급/검증 구현
 - PAS 권한 판정(전역/사이트 범위) 구현
 - SAS 키 검증 + rate limit + 요청로그 저장 고도화
+- SAS 인증 이벤트(`AUTH_SE_CD='SAS'`) 로그인 감사로그 연계
 - 분석 모듈 실행기 구현(파일경로/엔트리함수 실행)
 - 외부 DB 1종 연동 + 간단 ML 처리 + `TB_ANALYSIS_RUN` 결과 저장
 

@@ -13,6 +13,8 @@
   - 오케스트레이션 MVP 중심 테이블만 유지
   - 사용자/인증 통합(`TB_USER`)
   - API 서비스 메타(`TB_API_SVC`) + 테스트 JSON 저장
+  - 로그인 감사 테이블(`TB_LOGIN_AUDIT_LOG`) 추가
+  - 로그성 PK는 `AUTO_INCREMENT` 정책 적용
   - 샘플 데이터 포함(`SITE/BIZ/ANALYSIS_ITEM/USER_SITE_ROLE`)
 
 ## 실행/연동 기술 포인트
@@ -32,8 +34,9 @@
   - 프로젝트 키(`TB_BIZ_API_KEY`) 기반 인증
   - 키 해시 저장, 평문 저장 금지
 - PAS:
-  - JWT 기반 인증 예정
+  - JWT 기반 인증 구현
   - 전역권한(`GLOBAL_ROLE_CD`) + 사이트권한(`TB_USER_SITE_ROLE`) 조합
+  - 로그인 성공/실패/잠금을 `TB_LOGIN_AUDIT_LOG`에 저장
 
 ## 로컬 개발 메모
 
