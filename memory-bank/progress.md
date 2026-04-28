@@ -22,6 +22,20 @@
 - PAS 로그인/JWT 1차 구현 완료:
   - `POST /api/v1/pas/auth/login`
   - `GET /api/v1/pas/auth/me`
+- PAS 권한/CRUD 1차 확장 완료:
+  - 권한 컨텍스트 공통화(`PasUserContext`)
+  - `SUPER_ADMIN` 전체 접근 + 사이트 범위 제한 분기 적용
+  - `sites`, `biz`, `analysis_items`, `biz_api_keys`, `api_services` CRUD(목록/상세/등록/수정) 구현
+  - `analysis_runs` 필터 조회 구현(`analysis_item_no`, `run_stts_cd`, 기간)
+- Swagger 문서 보강 완료:
+  - PAS 주요 API 요약/파라미터 설명/요청 예시 추가
+- 테스트 기반 구축 완료:
+  - `pytest` dev 의존성 추가
+  - `backend/tests/api/pas` 테스트 작성 및 실행 완료
+  - PAS API 테스트 총 20건 통과
+- 개발 계획 문서화 완료:
+  - `work/workplan/development/tdddevplan.md`
+  - `work/workplan/development/20260428.md` (분석 공통 엔진 계획)
 - PAS 로그인 감사로그 적재 구현 완료:
   - 성공/실패/잠금 이벤트를 `TB_LOGIN_AUDIT_LOG`에 저장
 - 로그성 PK 정책 반영 완료:
@@ -38,7 +52,6 @@
 
 ## 아직 구현 필요 (애플리케이션 레벨)
 
-- PAS 권한 판정(전역/사이트 범위) 구현
 - SAS 키 검증 + rate limit + 요청로그 저장 고도화
 - SAS 인증 이벤트(`AUTH_SE_CD='SAS'`) 로그인 감사로그 연계
 - 분석 모듈 실행기 구현(파일경로/엔트리함수 실행)
@@ -49,7 +62,9 @@
 - 비밀번호/API 키 평문 저장 금지(해시만 저장)
 - 샘플 해시는 예시값이므로 운영 전 실제 해시로 교체 필요
 - 물리 FK 미사용 정책이므로 애플리케이션 레벨 무결성 체크 필요
+- 재택 환경에서는 회사 VPN 미연결로 DB 실연동 테스트가 불가함
+- DB 연동 검증(실DB CRUD/실행이력)은 회사 출근 후 수행 예정
 
 ## 최신 반영 시점
 
-- Memory Bank 동기화: **2026-04-24**
+- Memory Bank 동기화: **2026-04-28**

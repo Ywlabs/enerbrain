@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.common.response import ApiResponse
 from app.dependencies.db import get_db
-from app.dependencies.pas_auth import require_pas_jwt
+from app.dependencies.pas_auth import PasUserContext, require_pas_jwt
 from app.domain.user.schema import PasLoginIn
 from app.domain.user.service import authenticate_and_issue_token, get_me
 
@@ -28,7 +28,7 @@ def login(body: PasLoginIn, request: Request, db: Session = Depends(get_db)) -> 
 
 
 @router.get("/me", response_model=ApiResponse)
-def me(user_ctx: dict[str, str] = Depends(require_pas_jwt), db: Session = Depends(get_db)) -> ApiResponse:
+def me(user_ctx: PasUserContext = Depends(require_pas_jwt), db: Session = Depends(get_db)) -> ApiResponse:
     """현재 로그인 사용자 정보를 조회한다."""
     me_out = get_me(db, user_ctx["user_no"])
     return ApiResponse(success=True, message="조회 성공", data=me_out.model_dump())
